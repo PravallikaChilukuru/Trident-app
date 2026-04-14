@@ -8,6 +8,9 @@ A Django application with Nginx frontend, using Vagrant for VM setup.
 - Web Server: Django + Nginx + Gunicorn
 - DB Server: PostgreSQL, private network
 
+<img width="1355" height="624" alt="image" src="https://github.com/user-attachments/assets/588c55c4-affe-419e-9664-5e6e38b8f515" />
+
+
 ## Setup
 
 1. Install Vagrant and VirtualBox.
