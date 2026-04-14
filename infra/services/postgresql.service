@@ -1,0 +1,16 @@
+[Unit]
+Description=Postgresql file for DB
+After=network.target db-firewall.service
+
+[Service]
+Type=forking
+User=postgres
+Group=postgres
+ExecStart=/usr/bin/pg_ctlcluster 10 main start
+ExecStop=/usr/bin/pg_ctlcluster 10 main stop
+ExecReload=/usr/bin/pg_ctlcluster 10 main reload
+PIDFile=/var/run/postgresql/10-main.pid
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

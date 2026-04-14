@@ -1,0 +1,65 @@
+if File.exist?("../.env")
+  File.foreach("../.env") do |line|
+    next if line.chomp.empty? || line.start_with?("#")
+    key, value = line.chomp.split("=", 2)
+    ENV[key] = value.gsub(/^['"]|['"]$/, "") if key && value
+  end
+end
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/bionic64"
+    config.vm.boot_timeout = 600
+    config.ssh.proxy_command = "connect.exe -H %h %p" if Vagrant::Util::Platform.wsl?
+    config.vm.define "webvm" do |web|
+        web.vm.hostname = "webvm"
+        web.vm.network "private_network", ip: ENV['IP_WEB_SERVER'] || "192.168.56.10"
+        web.vm.network "forwarded_port", guest: 80, host: 8000
+        web.vm.provision "ansible" do |ansible|
+            ansible.playbook = "setup_web.yml"
+        end
+        web.vm.synced_folder "../src", "/home/vagrant/src"
+        web.vm.provider "virtualbox" do |vb|
+            vb.memory = "1024"
+            vb.cpus = 2
+            vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+            vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+            vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        end
+        web.vm.provision "shell", path: "./firewall/web_firewall.sh"
+        web.vm.provision "shell", inline: <<-SHELL
+            apt-get update
+            apt-get install -y nginx
+            echo "Hello, World!" > /var/www/html/index.html
+            systemctl enable nginx
+            systemctl start nginx
+        SHELL
+        end
+config.vm.define "db" do |db|
+    db.vm.hostname = "db"
+    db.vm.network "private_network", ip: ENV['IP_DB_SERVER'] || "192.168.56.11"
+    db.vm.provider "virtualbox" do |vb|
+        vb.memory = "1024"
+        vb.cpus = 2
+    end
+    db.vm.provision "shell", path: "./firewall/db_firewall.sh"
+    db.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y postgresql postgresql-contrib
+        systemctl enable postgresql
+        systemctl start postgresql
+    SHELL
+    end
+config.vm.define "jump" do |jump|
+    jump.vm.hostname = "jump"
+    jump.vm.network "private_network", ip: ENV['IP_JUMP_HOST'] || "192.168.56.12"
+    jump.vm.provider "virtualbox" do |vb|
+        vb.memory = "1024"
+        vb.cpus = 1
+    end
+    jump.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y openssh-server
+        systemctl enable ssh
+        systemctl start ssh
+    SHELL
+    end
+end

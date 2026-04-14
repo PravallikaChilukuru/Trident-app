@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trident Infra Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta http-equiv="refresh" content="10"> </head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Trident Infrastructure Health</h2>
+        <div class="row">
+            {% for name, status in results.items %}
+            <div class="col-md-4">
+                <div class="card text-white {% if status == 'UP' %}bg-success{% else %}bg-danger{% endif %} mb-3">
+                    <div class="card-header text-center"><strong>{{ name }}</strong></div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ status }}</h5>
+                        <p class="card-text">Audit Time: {{ audit_time }}</p>
+                    </div>
+                </div>
+            </div>
+	    {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

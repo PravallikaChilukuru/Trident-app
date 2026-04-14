@@ -1,0 +1,31 @@
+---
+- name: Setup Web Server Platform
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Install Nginx and Dependencies
+      apt:
+        name: [nginx, python3-pip, postgresql-client, libpq-dev, python3-dev]
+        state: present
+        update_cache: yes
+
+    - name: Install Python libraries
+      pip:
+        name: [psutil, psycopg2-binary]
+        state: present
+        executable: pip3
+
+    - name: Ensure Gunicorn is enabled and running
+      systemd:
+        name: gunicorn
+        state: started
+        enabled: yes
+
+    - name: Apply the Persistent Firewall
+      shell: bash /vagrant/firewall/web_firewall.sh
+      register: firewall_output
+
+    - name: Show Firewall Results
+      debug:
+        var: firewall_output.stdout_lines

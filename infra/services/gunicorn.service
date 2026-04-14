@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn service file to serve Django
+After=network.target web-firewall.service
+
+[Service]
+User=vagrant
+Group=www-data
+WorkingDirectory=/vagrant/src
+ExecStart=/usr/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 trident_app.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+# Environment files
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# App-specific cache
+src/trident_app/__pycache__/
+src/trident_app/management/__pycache__/
+src/trident_app/management/commands/__pycache__/
+src/trident_app/migrations/__pycache__/
+src/monitor/__pycache__/
+src/management/commands/__pycache__/
+
+# Vagrant
+infra/.vagrant/
+infra/.vagrant/*
+
+# Ansible retry files
+infra/ansible/*.retry
+
+# Logs
+infra/ubuntu-bionic-18.04-cloudimg-console.log
+
+# Specific files
+src/monitor/models.py
+src/monitor/*
